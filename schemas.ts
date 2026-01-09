@@ -358,7 +358,7 @@ export const GitLabUsersResponseSchema = z.record(
 // Namespace related schemas
 
 // Base schema for project-related operations
-const ProjectParamsSchema = z.object({
+export const ProjectParamsSchema = z.object({
   project_id: z.coerce.string().describe("Project ID or complete URL-encoded path to project"), // Changed from owner/repo to match GitLab API
 });
 export const GitLabNamespaceSchema = z.object({
@@ -1085,7 +1085,7 @@ export const CreateIssueSchema = ProjectParamsSchema.extend({
   issue_type: z.enum(["issue", "incident", "test_case", "task"]).describe("the type of issue. One of issue, incident, test_case or task.").nullish().default("issue"),
 });
 
-const MergeRequestOptionsSchema = {
+export const MergeRequestOptionsSchema = z.object({
   title: z.string().describe("Merge request title"),
   description: z.string().optional().describe("Merge request description"),
   source_branch: z.string().describe("Branch containing changes"),
@@ -1105,9 +1105,9 @@ const MergeRequestOptionsSchema = {
   squash: z.boolean().nullable()
     .optional()
     .describe("If true, squash all commits into a single commit on merge."),
-};
-export const CreateMergeRequestOptionsSchema = z.object(MergeRequestOptionsSchema);
-export const CreateMergeRequestSchema = ProjectParamsSchema.extend(MergeRequestOptionsSchema);
+});
+export const CreateMergeRequestOptionsSchema = MergeRequestOptionsSchema;
+export const CreateMergeRequestSchema = ProjectParamsSchema.merge(MergeRequestOptionsSchema);
 
 export const ForkRepositorySchema = ProjectParamsSchema.extend({
   namespace: z.string().optional().describe("Namespace to fork to (full path)"),
@@ -1161,7 +1161,7 @@ export const UpdateMergeRequestSchema = GetMergeRequestSchema.extend({
 });
 
 export const MergeMergeRequestSchema = ProjectParamsSchema.extend({
-  merge_request_iid: z.coerce.string().optional().describe("The IID of a merge request"),
+  merge_request_iid: z.coerce.string().describe("The IID of a merge request"),
   auto_merge: z.boolean().optional().default(false).describe("If true, the merge request merges when the pipeline succeeds."),
   merge_commit_message: z.string().optional().describe("Custom merge commit message"),
   merge_when_pipeline_succeeds: z.boolean().optional().default(false).describe("If true, the merge request merges when the pipeline succeeds.in GitLab 17.11. Use"),
